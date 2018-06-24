@@ -23,7 +23,7 @@ namespace MT4WCFHTTPService
 
 		[OperationContract]
 		[WebGet]
-		MqlTick SymbolInfoTick(string symbol);
+		FXModes.MqlTick SymbolInfoTick(string symbol);
 
 		[OperationContract]
 		[WebGet]
@@ -35,11 +35,11 @@ namespace MT4WCFHTTPService
 
 		[OperationContract]
 		[WebGet]
-		List<MtOrder> GetOrdersOpened();
+		List<MtOrder> OrdersOpened();
 
 		[OperationContract]
 		[WebGet]
-		DateTime TimeCurrent();
+		DateTime ServerTimeCurrent();
 
 		[OperationContract]
 		[WebGet]
@@ -47,7 +47,7 @@ namespace MT4WCFHTTPService
 
 		[OperationContract]
 		[WebGet]
-		string GetLastErrorDescription();
+		string LastErrorDescription();
 
 		[OperationContract]
 		[WebGet]
@@ -56,5 +56,21 @@ namespace MT4WCFHTTPService
 		[OperationContract]
 		[WebGet]
 		int OrderSendBuy(string symbol, double volume, double price, int slippage, double stoploss, double takeprofit, string comment);
+
+		[OperationContract]
+		[WebGet]
+		double SymbolInfoDouble(string symbol);
+
+		[OperationContract]
+		[WebGet]
+		List<FXModes.MqlRates> RatesByPositions(string symbol, string timeframe, int startPosition, int count);
+
+		[OperationContract]
+		[WebGet]
+		List<FXModes.MqlRates> RatesByDates(string symbol, string timeframe, string startDateString, string endDateString);
+
+		[OperationContract]
+		[WebGet]
+		FXModes.MqlRates CurrentIncompleteCandle(string symbol, string timeframe);
 	}
 }
