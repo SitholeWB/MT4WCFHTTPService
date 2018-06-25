@@ -109,6 +109,13 @@ namespace MT4WCFHTTPService
 			return mtApiClient.OrderSend(symbol, TradeOperation.OP_BUY, volume, price, slippage, stoploss, takeprofit, comment);
 		}
 
+		public long ChartOpen(string symbol, string timeframe)
+		{
+			RetryConnecting();
+			ENUM_TIMEFRAMES enumTimeframe = (ENUM_TIMEFRAMES)Enum.Parse(typeof(ENUM_TIMEFRAMES), timeframe);
+			return mtApiClient.ChartOpen(symbol, enumTimeframe);
+		}
+
 		public double SymbolInfoDouble(string symbol)
 		{
 			RetryConnecting();

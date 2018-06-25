@@ -43,6 +43,10 @@ namespace MT4WCFHTTPService
 
 		[OperationContract]
 		[WebGet]
+		long ChartOpen(string symbol, string timeframe);
+
+		[OperationContract]
+		[WebGet]
 		bool OrderModify(int ticket, double price, double stoploss, double takeprofit, string expirationDate);
 
 		[OperationContract]
