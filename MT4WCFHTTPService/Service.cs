@@ -248,7 +248,7 @@ namespace MT4WCFHTTPService
 				i++;
 				try
 				{
-					mtApiClient.BeginConnect("160.119.250.210", 8222);
+					mtApiClient.BeginConnect("localhost", 8222);
 					mtApiClient.TimeCurrent();
 				}
 				catch (Exception e)
