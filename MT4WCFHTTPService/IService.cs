@@ -75,6 +75,6 @@ namespace MT4WCFHTTPService
 
 		[OperationContract]
 		[WebGet]
-		FXModes.MqlRates CurrentIncompleteCandle(string symbol, string timeframe);
+		double iMA(string symbol, string timeframe, int ma_period, int ma_shift, int ma_method, int applied_price, int shift);
 	}
 }
