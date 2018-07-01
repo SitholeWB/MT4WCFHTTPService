@@ -14,41 +14,46 @@ namespace MT4HTTPService
 	{
 		private static void Main(string[] args)
 		{
-			WebServiceHost host = new WebServiceHost(typeof(Service), new Uri("http://localhost:9000/"));
-			try
+			while (true)
 			{
-				ServiceEndpoint ep = host.AddServiceEndpoint(typeof(IService), new WebHttpBinding(), "");
-				host.Open();
-				using (ChannelFactory<IService> cf = new ChannelFactory<IService>(new WebHttpBinding(), "http://localhost:9000"))
+				WebServiceHost host = new WebServiceHost(typeof(Service), new Uri("http://localhost:9000/"));
+				try
 				{
-					cf.Endpoint.Behaviors.Add(new WebHttpBehavior());
+					ServiceEndpoint ep = host.AddServiceEndpoint(typeof(IService), new WebHttpBinding(), "");
+					host.Open();
+					using (ChannelFactory<IService> cf = new ChannelFactory<IService>(new WebHttpBinding(), "http://localhost:9000"))
+					{
+						cf.Endpoint.Behaviors.Add(new WebHttpBehavior());
 
-					IService channel = cf.CreateChannel();
+						IService channel = cf.CreateChannel();
 
-					Console.WriteLine("Calling AccountBalance via HTTP GET: ");
-					var results = channel.AccountBalance();
-					Console.WriteLine("   Output: {0}", results);
+						Console.WriteLine("Calling AccountBalance via HTTP GET: ");
+						var results = channel.AccountBalance();
+						Console.WriteLine("   Output: {0}", results);
 
-					Console.WriteLine("");
-					Console.WriteLine("This can also be accomplished by navigating to");
-					Console.WriteLine("http://localhost:9000/AccountBalance");
-					Console.WriteLine("Calls with parameters can be done like...");
-					Console.WriteLine("http://localhost:9000/SymbolInfoTick?symbol=EURUSD");
-					Console.WriteLine("in a web browser while this sample is running.");
+						Console.WriteLine("");
+						Console.WriteLine("This can also be accomplished by navigating to");
+						Console.WriteLine("http://localhost:9000/AccountBalance");
+						Console.WriteLine("Calls with parameters can be done like...");
+						Console.WriteLine("http://localhost:9000/SymbolInfoTick?symbol=EURUSD");
+						Console.WriteLine("in a web browser while this sample is running.");
 
-					Console.WriteLine("");
+						Console.WriteLine("");
+					}
+
+					Console.WriteLine("Press <ENTER> to terminate");
+					Console.ReadLine();
+
+					host.Close();
+					break;
 				}
-
-				Console.WriteLine("Press <ENTER> to terminate");
-				Console.ReadLine();
-
-				host.Close();
-			}
-			catch (CommunicationException cex)
-			{
-				Console.WriteLine("An exception occurred: {0}", cex.Message);
-				host.Abort();
-				Console.ReadLine();
+				catch (CommunicationException cex)
+				{
+					Console.WriteLine("An exception occurred: {0}", cex.Message);
+					host.Abort();
+					Console.WriteLine("Restarting........");
+					//Console.ReadLine();
+				}
 			}
 		}
 	}

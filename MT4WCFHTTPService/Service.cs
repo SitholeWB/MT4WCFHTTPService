@@ -253,7 +253,7 @@ namespace MT4WCFHTTPService
 				}
 				catch (Exception e)
 				{
-					Logger($"RetryConnecting - count = {i} - e.Message={e.Message}");
+					Logger($"RetryConnecting - count = {i} - e.Message={e.Message} - Date (UTC) = {DateTime.UtcNow}");
 					Console.WriteLine(DateTime.Now + " <<>> " + e.Message);
 					Thread.Sleep(1000);
 					Console.WriteLine(DateTime.Now + " <<!!>> " + e.Message);
