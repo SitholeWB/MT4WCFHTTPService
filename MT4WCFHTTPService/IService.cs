@@ -55,11 +55,11 @@ namespace MT4WCFHTTPService
 
 		[OperationContract]
 		[WebGet]
-		int OrderSendSell(string symbol, double volume, double price, int slippage, double stoploss, double takeprofit, string comment);
+		int OrderSendSell(string symbol, double volume, int slippage, double stoploss, double takeprofit, string comment);
 
 		[OperationContract]
 		[WebGet]
-		int OrderSendBuy(string symbol, double volume, double price, int slippage, double stoploss, double takeprofit, string comment);
+		int OrderSendBuy(string symbol, double volume, int slippage, double stoploss, double takeprofit, string comment);
 
 		[OperationContract]
 		[WebGet]
@@ -76,5 +76,9 @@ namespace MT4WCFHTTPService
 		[OperationContract]
 		[WebGet]
 		double iMA(string symbol, string timeframe, int ma_period, int ma_shift, int ma_method, int applied_price, int shift);
+
+		[OperationContract]
+		[WebGet]
+		double iMAOnArray(string symbol, string timeframe, string candleDateString, int numberOfCandles, int total, int ma_period, int ma_shift, int ma_method, int shift);
 	}
 }

@@ -84,19 +84,19 @@ namespace MT4WCFHTTPService
 			return mtApiClient.TimeCurrent();
 		}
 
-		public int OrderSendSell(string symbol, double volume, double price, int slippage, double stoploss, double takeprofit, string comment)
+		public int OrderSendSell(string symbol, double volume, int slippage, double stoploss, double takeprofit, string comment)
 		{
 			RetryConnecting();
-			var infoTick = mtApiClient.SymbolInfoTick(symbol);
-			price = infoTick.Bid;
 			var result = -1;
-			var has4066Error = true;
+			var has4066Error = false;
 			int countRetries = 0;
-			while (has4066Error && countRetries < 2)
+			mtApiClient.CopyRates(symbol, ENUM_TIMEFRAMES.PERIOD_CURRENT, 0, 5);
+			do
 			{
 				try
 				{
-					result = mtApiClient.OrderSend(symbol, TradeOperation.OP_SELL, volume, price, slippage, stoploss, takeprofit, comment);
+					mtApiClient.RefreshRates();
+					result = mtApiClient.OrderSendSell(symbol, volume, slippage, stoploss, takeprofit, comment: comment, magic: 0);
 				}
 				catch
 				{
@@ -106,30 +106,33 @@ namespace MT4WCFHTTPService
 					has4066Error = mtApiClient.GetLastError() == 4066;
 					if (has4066Error)
 					{
-						Thread.Sleep(5000);
+						mtApiClient.RefreshRates();
+						mtApiClient.CopyRates(symbol, ENUM_TIMEFRAMES.PERIOD_CURRENT, 0, 5);
+						Thread.Sleep(1000);
 					}
 				}
 				catch { }
-				Logger($"OrderSend -has4066Error={has4066Error} - countRetries={countRetries}");
+				Logger($"OrderSendSell -has4066Error={has4066Error} - countRetries={countRetries}");
 				countRetries++;
 			}
+			while (has4066Error && countRetries < 2);
 
 			return result;
 		}
 
-		public int OrderSendBuy(string symbol, double volume, double price, int slippage, double stoploss, double takeprofit, string comment)
+		public int OrderSendBuy(string symbol, double volume, int slippage, double stoploss, double takeprofit, string comment)
 		{
 			RetryConnecting();
-			var infoTick = mtApiClient.SymbolInfoTick(symbol);
-			price = infoTick.Ask;
 			var result = -1;
 			var has4066Error = true;
 			int countRetries = 0;
-			while (has4066Error && countRetries < 2)
+			mtApiClient.CopyRates(symbol, ENUM_TIMEFRAMES.PERIOD_CURRENT, 0, 5);
+			do
 			{
 				try
 				{
-					result = mtApiClient.OrderSend(symbol, TradeOperation.OP_BUY, volume, price, slippage, stoploss, takeprofit, comment);
+					mtApiClient.RefreshRates();
+					result = mtApiClient.OrderSendBuy(symbol, volume, slippage, stoploss, takeprofit, comment: comment, magic: 0);
 				}
 				catch
 				{
@@ -139,14 +142,16 @@ namespace MT4WCFHTTPService
 					has4066Error = mtApiClient.GetLastError() == 4066;
 					if (has4066Error)
 					{
-						Thread.Sleep(5000);
+						mtApiClient.RefreshRates();
+						mtApiClient.CopyRates(symbol, ENUM_TIMEFRAMES.PERIOD_CURRENT, 0, 5);
+						Thread.Sleep(10000);
 					}
 				}
 				catch { }
-				Logger($"OrderSend - has4066Error={has4066Error} - countRetries={countRetries}");
+				Logger($"OrderSendBuy - has4066Error={has4066Error} - countRetries={countRetries}");
 				countRetries++;
 			}
-
+			while (has4066Error && countRetries < 2);
 			return result;
 		}
 
@@ -238,6 +243,21 @@ namespace MT4WCFHTTPService
 			return mtApiClient.iMA(symbol, (int)enumTimeframe, ma_period, ma_shift, ma_method, applied_price, shift);
 		}
 
+		public double iMAOnArray(string symbol, string timeframe, string candleDateString, int numberOfCandles, int total, int ma_period, int ma_shift, int ma_method, int shift)
+		{
+			RetryConnecting();
+			var candleDate = DateTime.ParseExact(candleDateString, "yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+			ENUM_TIMEFRAMES enumTimeframe = (ENUM_TIMEFRAMES)Enum.Parse(typeof(ENUM_TIMEFRAMES), timeframe);
+
+			var candles = mtApiClient.CopyRates(symbol, enumTimeframe, candleDate, numberOfCandles).ToArray();
+			var data = new double[candles.Length];
+			for (var i = 0; i < candles.Length; i++)
+			{
+				data[i] = candles[i].Close;
+			}
+			return mtApiClient.iMAOnArray(data, total, ma_period, ma_shift, ma_method, shift);
+		}
+
 		#region private methods
 
 		private static void RetryConnecting()
@@ -248,14 +268,14 @@ namespace MT4WCFHTTPService
 				i++;
 				try
 				{
-					mtApiClient.BeginConnect("localhost", 8222);
+					mtApiClient.BeginConnect("160.119.250.210", 8222);
 					mtApiClient.TimeCurrent();
 				}
 				catch (Exception e)
 				{
 					Logger($"RetryConnecting - count = {i} - e.Message={e.Message} - Date (UTC) = {DateTime.UtcNow}");
 					Console.WriteLine(DateTime.Now + " <<>> " + e.Message);
-					Thread.Sleep(1000);
+					Thread.Sleep(2000);
 					Console.WriteLine(DateTime.Now + " <<!!>> " + e.Message);
 				}
 			}
